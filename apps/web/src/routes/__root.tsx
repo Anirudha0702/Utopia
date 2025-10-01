@@ -1,17 +1,21 @@
-import { createRootRoute, Link, Outlet } from "@tanstack/react-router";
+import { Outlet, createRootRoute, useMatches } from "@tanstack/react-router";
+import Navbar from "@/components/common/Navbar";
 
-const RootLayout = () => (
-  <>
-    <div className="p-2 flex gap-2">
-      <Link to="/about" className="[&.active]:font-bold">
-        About
-      </Link>
+export const Route = createRootRoute({
+  component: RootComponent,
+});
+
+function RootComponent() {
+  const matches = useMatches();
+
+  const isAuthRoute = matches.some(
+    (m) => m.routeId === "/login/" || m.routeId === "/register/"
+  );
+
+  return (
+    <div>
+      {!isAuthRoute && <Navbar />}
+      <Outlet />
     </div>
-    <hr />
-    <img src="/images/logo.webp" alt="Logo" />
-
-    <Outlet />
-  </>
-);
-
-export const Route = createRootRoute({ component: RootLayout });
+  );
+}
