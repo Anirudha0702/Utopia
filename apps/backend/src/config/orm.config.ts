@@ -1,12 +1,15 @@
 import * as path from 'path';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-export const getTypeOrmConfig = (): TypeOrmModuleOptions => ({
+import { ConfigService } from '@nestjs/config';
+export const getTypeOrmConfig = (
+  config: ConfigService,
+): TypeOrmModuleOptions => ({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT ?? '5432', 10),
-  username: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME,
+  host: config.getOrThrow('DB_HOST'),
+  port: parseInt(config.getOrThrow('DB_PORT') ?? '5432', 10),
+  username: config.getOrThrow('DB_USER'),
+  password: config.getOrThrow('DB_PASSWORD'),
+  database: config.getOrThrow('DB_NAME'),
   entities: [path.join(__dirname, '../**/*.entity{.ts,.js}')],
   logging: true,
   synchronize: true, // Recommended to control sync via env

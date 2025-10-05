@@ -2,10 +2,11 @@ import { Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import dbConfig from './config/db.config';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getTypeOrmConfig } from './config/orm.config';
 import { UsersModule } from './users/users.module';
+import { ProjectModule } from './project/project.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,9 +15,12 @@ import { UsersModule } from './users/users.module';
       load: [dbConfig],
     }),
     TypeOrmModule.forRootAsync({
-      useFactory: getTypeOrmConfig,
+      useFactory: (configService: ConfigService) => {
+        return getTypeOrmConfig(configService);
+      },
     }),
     UsersModule,
+    ProjectModule,
   ],
   controllers: [AppController],
   providers: [AppService],
