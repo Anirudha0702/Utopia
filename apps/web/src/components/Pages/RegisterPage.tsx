@@ -14,7 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Eye, EyeClosed, Loader2 } from "lucide-react";
+import { Eye, EyeClosed } from "lucide-react";
 import {
   InputOTP,
   InputOTPGroup,
@@ -76,7 +76,7 @@ export function RegisterPage({
                           height="50px"
                           width="50px"
                         />
-                        Velora
+                        Nexi
                       </h1>
                       <p className="text-muted-foreground text-balance">
                         Create a new account
@@ -108,7 +108,7 @@ export function RegisterPage({
                         name="email"
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel className="text-white">Email</FormLabel>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
                               <div className="relative">
                                 <Input
@@ -236,9 +236,7 @@ export function RegisterPage({
                       name="confirmpassword"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-white">
-                            Confirm Password
-                          </FormLabel>
+                          <FormLabel>Confirm Password</FormLabel>
                           <FormControl>
                             <div>
                               <Input
@@ -331,7 +329,7 @@ export function RegisterPage({
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="w-full  absolute z-10 bottom-10 text-center  text-lg font-bold  drop-shadow-lg">
-                  <span>Boost you work flow with Velora</span>
+                  <span>Boost you work flow with Nexi</span>
                 </div>
               </div>
             </CardContent>

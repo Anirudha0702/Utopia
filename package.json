@@ -1,5 +1,5 @@
 {
-  "name": "Velora",
+  "name": "nexi",
   "private": true,
   "scripts": {
     "build": "turbo run build",

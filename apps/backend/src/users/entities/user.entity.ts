@@ -1,53 +1,86 @@
-// src/users/entities/user.entity.ts
 import {
   Entity,
-  Column,
   PrimaryGeneratedColumn,
+  Column,
   CreateDateColumn,
   UpdateDateColumn,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
 } from 'typeorm';
+import { Post } from '../../post/entities/post.entity';
 
-@Entity('users')
+export enum Gender {
+  MALE = 'Male',
+  FEMALE = 'Female',
+  OTHER = 'Other',
+}
+
+export enum Privacy {
+  PUBLIC = 'Public',
+  FRIENDS = 'Friends',
+  PRIVATE = 'Private',
+}
+
+@Entity()
 export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column()
-  name: string;
-
   @Column({ unique: true })
   email: string;
 
+  @Column()
+  password: string;
+
+  @Column()
+  name: string;
+
+  @Column({ nullable: true })
+  profilePicture: string;
+
+  @Column({ nullable: true, length: 160 })
+  bio: string;
+
   @Column({ type: 'date', nullable: true })
-  dob?: Date; // native Date instead of string
+  dateOfBirth: Date;
 
-  @Column({ nullable: true })
-  avatarUrl?: string;
+  @Column({ type: 'enum', enum: Gender, nullable: true })
+  gender: Gender;
 
-  @Column({ nullable: true })
-  bio?: string;
+  @ManyToMany(() => User)
+  @JoinTable()
+  friends: User[];
 
-  @Column({ nullable: true })
-  timeZone?: string;
+  @ManyToMany(() => User)
+  @JoinTable()
+  followers: User[];
 
-  @Column({ select: false })
-  password: string; // hashed password
+  @ManyToMany(() => User)
+  @JoinTable()
+  following: User[];
+
+  @OneToMany(() => Post, (post) => post.user)
+  posts: Post[];
 
   @Column({ default: false })
   isVerified: boolean;
 
-  @Column({ default: 'user' })
-  role: 'user' | 'superadmin' | 'admin';
-
-  @Column({ type: 'timestamp', nullable: true })
-  lastLoginAt?: Date;
-
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ type: 'enum', enum: Privacy, default: Privacy.PUBLIC })
+  privacy: Privacy;
+
+  @Column({ default: true })
+  notifications: boolean;
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lastLogin: Date;
 }

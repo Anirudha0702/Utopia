@@ -19,10 +19,10 @@ export function LoginPage({
                   <div className="flex flex-col items-center text-center">
                     <h1 className="text-2xl font-bold flex items-center gap-2">
                       <img src="/images/logo.png" height="50px" width="50px" />
-                      Velora
+                      Nexi
                     </h1>
                     <p className="text-muted-foreground text-balance">
-                      Login to Velora
+                      Login to Nexi
                     </p>
                   </div>
                   <div className="grid gap-3">
@@ -115,7 +115,7 @@ export function LoginPage({
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="w-full  absolute z-10 bottom-10 text-center  text-lg font-bold  drop-shadow-lg">
-                  <span>Boost you work flow with Velora</span>
+                  <span>Boost you work flow with Nexi</span>
                 </div>
               </div>
             </CardContent>

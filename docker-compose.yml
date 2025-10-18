@@ -3,11 +3,11 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    container_name: turbo_postgres
+    container_name: nexi_postgres
     environment:
       POSTGRES_USER: anirudha
       POSTGRES_PASSWORD: Robin@930
-      POSTGRES_DB: Velora
+      POSTGRES_DB: nexi
     ports:
       - "5432:5432"
     volumes:
