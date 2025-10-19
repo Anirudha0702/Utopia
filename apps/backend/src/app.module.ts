@@ -8,6 +8,8 @@ import { getTypeOrmConfig } from './config/orm.config';
 import { UsersModule } from './users/users.module';
 import { AuthController } from './auth/auth.controller';
 import { AuthService } from './auth/auth.service';
+import { EmailService } from './email/email.service';
+import { OtpModule } from './otp/otp.module';
 
 @Module({
   imports: [
@@ -24,8 +26,9 @@ import { AuthService } from './auth/auth.service';
       },
     }),
     UsersModule,
+    OtpModule,
   ],
   controllers: [AppController, AuthController],
-  providers: [AppService, AuthService],
+  providers: [AppService, AuthService, EmailService],
 })
 export class AppModule {}

@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Post,
-  Body,
-  HttpException,
-  HttpStatus,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignupDTO } from './dto/auth.dto';
 
@@ -15,11 +8,11 @@ export class AuthController {
 
   // POST /auth/signup
   @Post('signup')
-  register(
+  async register(
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     payload: SignupDTO,
   ) {
-    return this.authService.signup(payload);
+    return await this.authService.signup(payload);
   }
   // POST /auth/login
   @Post('login')

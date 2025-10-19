@@ -1,5 +1,8 @@
 {
-  "name": "nexi",
+  "dependencies": {
+    "@nestjs/mapped-types": "*"
+  },
+  "name": "neko",
   "private": true,
   "scripts": {
     "build": "turbo run build",

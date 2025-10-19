@@ -2,10 +2,12 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { LoggingInterceptor } from './common/interceptors/logging/logging.interceptor';
 import { ResponseInterceptor } from './common/interceptors/response/response.interceptor';
+import { AllExceptionsFilter } from './common/filters/response/response.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalInterceptors(
     new ResponseInterceptor(),
     new LoggingInterceptor(),

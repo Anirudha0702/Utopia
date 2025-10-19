@@ -22,7 +22,7 @@ export class UserService {
       email,
       password: hashedPassword,
     });
-    return this.userRepository.save(user);
+    return await this.userRepository.save(user);
   }
 
   findAll() {
@@ -39,5 +39,11 @@ export class UserService {
 
   remove(id: number) {
     return `This action removes a #${id} user`;
+  }
+  async findOneByEmail(email: string): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({
+      email,
+    });
+    return user;
   }
 }
