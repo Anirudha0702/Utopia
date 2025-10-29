@@ -24,13 +24,14 @@ export class EmailService implements OnModuleInit {
 
   async sentOTPTo(email: string, otp: string, username?: string) {
     try {
+      console.log(email, otp, username);
       const message = new SendSmtpEmail();
       const htmlContent = OTPSentTemplate(username ?? 'User', otp);
       message.subject = 'Email Verification';
       message.htmlContent = htmlContent;
       message.sender = {
-        name: 'Neko Team',
-        email: 'nekoteam.meow@gmail.com',
+        name: 'Utopia Team',
+        email: process.env.SMTP_MAIL,
       };
       message.to = [{ email: email, name: username ?? 'User' }];
       await this.apiInstance.sendTransacEmail(message);

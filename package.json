@@ -2,7 +2,7 @@
   "dependencies": {
     "@nestjs/mapped-types": "*"
   },
-  "name": "neko",
+  "name": "utopia",
   "private": true,
   "scripts": {
     "build": "turbo run build",

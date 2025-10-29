@@ -1,7 +1,17 @@
-import { Controller, Post, Body, ValidationPipe } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Body,
+  ValidationPipe,
+  Res,
+  Get,
+  UseGuards,
+  Req,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { SignupDTO } from './dto/auth.dto';
-
+import { SigninDTO, SignupDTO } from './dto/auth.dto';
+import { type Request, type Response } from 'express';
+import { AuthGuard } from '@nestjs/passport';
 @Controller('auth') // Base route: /auth
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -17,7 +27,30 @@ export class AuthController {
   // POST /auth/login
   @Post('login')
   async login(
-    @Body('username') username: string,
-    @Body('password') password: string,
-  ) {}
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    credential: SigninDTO,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    return await this.authService.signin(credential, res);
+  }
+  @Get('google')
+  @UseGuards(AuthGuard('google'))
+  async googleAuth() {
+    // Redirects to Google OAuth login
+  }
+  @Get('google/callback')
+  @UseGuards(AuthGuard('google'))
+  googleAuthRedirect(@Req() req: Request) {
+    return req.user; // User info from Google
+  }
+
+  @Get('facebook')
+  @UseGuards(AuthGuard('facebook'))
+  async facebookAuth() {}
+
+  @Get('facebook/callback')
+  @UseGuards(AuthGuard('facebook'))
+  facebookAuthRedirect(@Req() req: Request) {
+    return req.user;
+  }
 }

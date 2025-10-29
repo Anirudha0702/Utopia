@@ -3,11 +3,12 @@ version: "3.9"
 services:
   postgres:
     image: postgres:16
-    container_name: neko_postgres
+    restart: always
+    container_name: utopia_postgres
     environment:
       POSTGRES_USER: anirudha
       POSTGRES_PASSWORD: Robin@930
-      POSTGRES_DB: neko
+      POSTGRES_DB: utopia
     ports:
       - "5432:5432"
     volumes:

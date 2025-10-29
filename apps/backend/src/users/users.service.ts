@@ -12,7 +12,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
   async create(createUserDto: CreateUserDto) {
-    const { name, email, password } = createUserDto;
+    const { name, email, password, verified = false } = createUserDto;
 
     // hash password before saving
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -21,6 +21,7 @@ export class UserService {
       name,
       email,
       password: hashedPassword,
+      isVerified: verified,
     });
     return await this.userRepository.save(user);
   }

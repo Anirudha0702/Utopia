@@ -5,4 +5,5 @@ export class CreateUserDto {
   age?: number;
   dateOfBirth?: string;
   profilePicture?: string; // optional
+  verified?: boolean;
 }

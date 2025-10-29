@@ -1,5 +1,8 @@
+import useAuthStore from "@/store/authStore";
+
 function HomePage() {
-  return <div>HomePage</div>;
+  const auth = useAuthStore();
+  return <div>HomePage {auth.user?.email}</div>;
 }
 
 export default HomePage;

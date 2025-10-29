@@ -26,6 +26,11 @@ export class OtpController {
     @Body(new ValidationPipe({ whitelist: true, transform: true }))
     info: VerifyOtpDto,
   ) {
-    return await this.otpService.verify(info);
+    const verified = await this.otpService.verify(info);
+    if (verified)
+      return {
+        verified,
+        email: info.email,
+      };
   }
 }

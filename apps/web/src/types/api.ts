@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { email, z } from "zod";
 
 export interface ApiConfig<TResponse, TPayload = undefined> {
   endpoint: string;
@@ -15,3 +15,96 @@ export interface ApiError {
   status?: number;
   details?: unknown;
 }
+
+// Base User Schema
+export const userSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  email: z.email(),
+  privacy: z.enum(["public", "private"]),
+  isVerified: z.boolean(),
+  profilePicture: z.string().nullable(),
+  bio: z.string(),
+  dateOfBirth: z.coerce.date().nullable(),
+  blocked: z.boolean(),
+  isActive: z.boolean(),
+  lastLogin: z.coerce.date().nullable(),
+  notifications: z.boolean(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+});
+export type User = z.infer<typeof userSchema>;
+//  Generic API response wrapper
+export const apiResponseSchema = <T extends z.ZodTypeAny>(dataSchema: T) =>
+  z.object({
+    success: z.boolean(), // or z.literal(true) if always true
+    data: dataSchema,
+    message: z.string(),
+    timestamp: z.coerce.date(),
+  });
+
+// Endpoint-specific "data" schemas
+const AuthserResponse = z.object({
+  id: z.string(),
+  email: z.string(),
+  name: z.string(),
+  profilePicture: z.string().nullable(),
+  bio: z.string().nullable(),
+  dateOfBirth: z.coerce.date().nullable(),
+  isVerified: z.boolean(),
+  isActive: z.boolean(),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  lastLogin: z.coerce.date().nullable(),
+});
+// Register Endpoint API Type
+export const registerDataSchema = z.object({
+  user: AuthserResponse,
+});
+
+// Composed Endpoint Schemas
+export const registerResponseSchema = apiResponseSchema(registerDataSchema);
+
+//Inferred Types
+export type RegisterResponse = z.infer<typeof registerResponseSchema>;
+
+// Login Endpoint API Type
+
+export const loginDataSchema = z.object({
+  user: AuthserResponse,
+  accessToken: z.string(),
+  refreshToken: z.string(),
+});
+
+export const loginResponseSchema = apiResponseSchema(loginDataSchema);
+
+export type LoginResponse = z.infer<typeof loginResponseSchema>;
+
+export const OTPSchema = z.object({
+  id: z.uuid(),
+  email: email(),
+  otpHash: z.string(),
+  createdAt: z.coerce.date(),
+  expiresAt: z.coerce.date(),
+});
+
+export const generateOTPResponseSchema = apiResponseSchema(OTPSchema);
+
+export type GenerateOTPResponse = z.infer<typeof generateOTPResponseSchema>;
+export const verifyOTPDataSchema = z.object({
+  verified: z.boolean(),
+  email: z.email(),
+});
+export const verifyOTPResponseSchema = apiResponseSchema(verifyOTPDataSchema);
+
+export type VerifyOTPResponse = z.infer<typeof verifyOTPResponseSchema>;
+
+export const verifyUserSchema = z.object({
+  id: z.uuid(),
+});
+
+export const VerifyUserResponseSchema = apiResponseSchema(verifyUserSchema);
+export type VerifyUserResponse = z.infer<typeof VerifyUserResponseSchema>;
+
+export const logoutSchema = apiResponseSchema(z.null());
+export type LogoutResponse = z.infer<typeof logoutSchema>;

@@ -29,7 +29,7 @@ export function OTPSentTemplate(username: string, otp: string) {
           <hr style="border: none; border-top: 1px solid #eeeeee; margin: 30px 0;" />
 
           <p style="color: #888888; font-size: 12px; text-align: center;">
-            © 2025 Doclin Team. All rights reserved.<br/>
+            © 2025 Utopia Team. All rights reserved.<br/>
             This is an automated message, please do not reply.
           </p>
         </div>

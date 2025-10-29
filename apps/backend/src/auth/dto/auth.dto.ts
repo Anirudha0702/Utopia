@@ -1,5 +1,12 @@
 // src/auth/dto/auth.dto.ts
-import { IsEmail, IsNotEmpty, MinLength } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  MinLength,
+} from 'class-validator';
+import { User } from 'src/users/entities/user.entity';
 
 export class SignupDTO {
   @IsEmail({}, { message: 'Invalid email format' })
@@ -11,6 +18,10 @@ export class SignupDTO {
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+
+  @IsBoolean()
+  @IsOptional()
+  verified?: boolean;
 }
 
 export class SigninDTO {
@@ -20,4 +31,37 @@ export class SigninDTO {
   @IsNotEmpty({ message: 'Password is required' })
   @MinLength(6, { message: 'Password must be at least 6 characters long' })
   password: string;
+}
+export class InternalUser {
+  id: string;
+  email: string;
+  name: string;
+  profilePicture?: string;
+  bio?: string;
+  dateOfBirth?: Date;
+  isVerified: boolean;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  lastLogin?: Date;
+
+  constructor(user: User) {
+    this.id = user.id;
+    this.email = user.email;
+    this.name = user.name;
+    this.profilePicture = user.profilePicture;
+    this.bio = user.bio;
+    this.dateOfBirth = user.dateOfBirth;
+    this.isVerified = user.isVerified;
+    this.isActive = user.isActive;
+    this.createdAt = user.createdAt;
+    this.updatedAt = user.updatedAt;
+    this.lastLogin = user.lastLogin;
+  }
+}
+
+export class LoginSuccessDTO {
+  user: InternalUser;
+  accessToken: string;
+  refreshToken: string;
 }

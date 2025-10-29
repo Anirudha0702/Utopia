@@ -4,8 +4,17 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { RegisterFormSchema, type RegisterForm } from "@/types/type";
-import { useState } from "react";
+import {
+  FormSchema,
+  otpFormSchema,
+  otpVerifySchema,
+  verifyUserSchema,
+  type OtpFormType,
+  type OtpVerifyType,
+  type registerTypes,
+  type VerifyUserType,
+} from "@/types/type";
+import { useRef, useState } from "react";
 import {
   Form,
   FormControl,
@@ -14,24 +23,37 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { Eye, EyeClosed } from "lucide-react";
+import { Eye, EyeClosed, Loader2 } from "lucide-react";
 import {
   InputOTP,
   InputOTPGroup,
   InputOTPSeparator,
   InputOTPSlot,
 } from "../ui/input-otp";
+import { useApiMutation } from "@/hooks/useApi";
+import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
+import {
+  generateOTPResponseSchema,
+  registerResponseSchema,
+  verifyOTPResponseSchema,
+  VerifyUserResponseSchema,
+  type ApiError,
+  type GenerateOTPResponse,
+  type RegisterResponse,
+  type VerifyOTPResponse,
+  type VerifyUserResponse,
+} from "@/types/api";
 
 export function RegisterPage({
   className,
   ...props
 }: React.ComponentProps<"div">) {
-  const [otpSent, setOtpSent] = useState(false);
-  const [otpVerified, setOtpVerified] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const [confirmPassword, setConfirmPassword] = useState(false);
-  const form = useForm<RegisterForm>({
-    resolver: zodResolver(RegisterFormSchema),
+  type ApiResponse = RegisterResponse;
+  const form = useForm<registerTypes>({
+    resolver: zodResolver(FormSchema),
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       email: "",
       name: "",
@@ -40,8 +62,95 @@ export function RegisterPage({
       otp: "",
     },
   });
-  function onSubmit(data: RegisterForm) {
+
+  const [showPassword, setShowPassword] = useState(false);
+  const [confirmPassword, setConfirmPassword] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
+  const [otpVerified, setOtpVerified] = useState(false);
+  const debounceTimeoutRef = useRef<number | null>(null);
+
+  const navigate = useNavigate();
+
+  const profileMutation = useApiMutation<VerifyUserResponse, VerifyUserType>(
+    {
+      endpoint: "/auth/verify",
+      method: "POST",
+      payloadSchema: verifyUserSchema,
+      responseSchema: VerifyUserResponseSchema,
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message || "User verified successfully!");
+        navigate({ to: "/login" });
+      },
+
+      onError: (error: ApiError) => {
+        toast.error(error.message || "Profile setup failed.");
+      },
+    }
+  );
+  const mutation = useApiMutation<
+    ApiResponse,
+    Omit<registerTypes, "confirmpassword" | "otp">
+  >(
+    {
+      endpoint: "/auth/signup",
+      method: "POST",
+      payloadSchema: FormSchema.omit({ confirmpassword: true, otp: true }),
+      responseSchema: registerResponseSchema,
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message || "Registration successful!");
+        profileMutation.mutate({
+          id: data.data.user.id,
+        });
+      },
+      onError: (error: ApiError) => {
+        toast.error(error.message || "Registration failed. Please try again.");
+      },
+    }
+  );
+
+  const sendOtpMutation = useApiMutation<GenerateOTPResponse, OtpFormType>(
+    {
+      endpoint: "/otp/generate",
+      method: "POST",
+      payloadSchema: otpFormSchema,
+      responseSchema: generateOTPResponseSchema,
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message || "OTP sent successfully!");
+        setOtpSent(true);
+      },
+      onError: (error: ApiError) => {
+        toast.error(error.message || "Failed to send OTP");
+      },
+    }
+  );
+  const verifyOtpMutation = useApiMutation<VerifyOTPResponse, OtpVerifyType>(
+    {
+      endpoint: "/otp/verify",
+      method: "POST",
+      payloadSchema: otpVerifySchema,
+      responseSchema: verifyOTPResponseSchema,
+    },
+    {
+      onSuccess: (data) => {
+        toast.success(data.message || "OTP verified!");
+        setOtpVerified(true);
+        setOtpSent(false);
+        form.setValue("otp", "");
+      },
+      onError: (error: ApiError) => {
+        toast.error(error.message || "Invalid OTP, please try again.");
+      },
+    }
+  );
+  function onSubmit(data: registerTypes) {
     const { name, email, password } = data;
+    mutation.mutate({ name, email, password });
   }
   function handleEditEmail() {
     setOtpSent(false);
@@ -49,11 +158,24 @@ export function RegisterPage({
     form.setValue("otp", "");
     form.setValue("email", "");
   }
+
   function showHidePassword() {
     setShowPassword(!showPassword);
   }
   function showHideConfirmPassword() {
     setConfirmPassword(!confirmPassword);
+  }
+
+  function debounceVerifyOtp(otp: string, email: string) {
+    if (debounceTimeoutRef.current) clearTimeout(debounceTimeoutRef.current);
+
+    if (!/^[A-Za-z0-9]{6}$/.test(otp) || otp.length !== 6) return;
+    debounceTimeoutRef.current = setTimeout(() => {
+      verifyOtpMutation.mutate({
+        email,
+        otp,
+      });
+    }, 2000);
   }
   return (
     <div className=" bg-background flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
@@ -76,7 +198,7 @@ export function RegisterPage({
                           height="50px"
                           width="50px"
                         />
-                        Nexi
+                        Utopia
                       </h1>
                       <p className="text-muted-foreground text-balance">
                         Create a new account
@@ -119,17 +241,17 @@ export function RegisterPage({
                                   onBlur={() => {
                                     if (otpVerified || !field.value || otpSent)
                                       return;
-                                    // sendOtpMutation.mutate({
-                                    //   email: field.value,
-                                    //   username: form.getValues("username"),
-                                    // });
+                                    sendOtpMutation.mutate({
+                                      email: field.value,
+                                      name: form.getValues("name"),
+                                    });
                                   }}
                                 />
-                                {/* {sendOtpMutation.isPending && (
-                              <div className="absolute inset-y-0 right-3 flex items-center">
-                                <Loader2 className="w-4 h-4 animate-spin text-white" />
-                              </div>
-                            )} */}
+                                {sendOtpMutation.isPending && (
+                                  <div className="absolute inset-y-0 right-3 flex items-center">
+                                    <Loader2 className="w-4 h-4 animate-spin text-white" />
+                                  </div>
+                                )}
                                 {otpVerified && (
                                   <span
                                     className="text-primary hover:underline font-medium text-sm cursor-pointer inline-block"
@@ -163,12 +285,10 @@ export function RegisterPage({
                                   className="w-full"
                                   onChange={(val: string) => {
                                     field.onChange(val);
-                                    if (val.length === 6) {
-                                      // verifyOtpMutation.mutate({
-                                      //   email: form.getValues("email"),
-                                      //   otp: val,
-                                      // });
-                                    }
+                                    debounceVerifyOtp(
+                                      val,
+                                      form.getValues("email")
+                                    );
                                   }}
                                 >
                                   <InputOTPGroup>
@@ -329,7 +449,7 @@ export function RegisterPage({
                   className="absolute inset-0 h-full w-full object-cover"
                 />
                 <div className="w-full  absolute z-10 bottom-10 text-center  text-lg font-bold  drop-shadow-lg">
-                  <span>Boost you work flow with Nexi</span>
+                  <span>Boost you work flow with Utopia</span>
                 </div>
               </div>
             </CardContent>

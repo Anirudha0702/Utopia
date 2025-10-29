@@ -35,6 +35,7 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
     payloadSchema,
   } = config;
 
+  // Validate payload before sending (if schema provided)
   if (payload && payloadSchema) {
     payloadSchema.parse(payload);
   }
@@ -48,18 +49,30 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
     : `/${endpoint}`;
   const url = buildUrl(`${API_BASE_URL}${normalizedEndpoint}`, queryParams);
 
-  const defaultHeaders = {
-    "Content-Type": "application/json",
+  // const defaultHeaders = {
+  //   "Content-Type": "application/json",
+  //   ...headers,
+  // };
+
+  // const response = await fetch(url, {
+  //   method,
+  //   headers: defaultHeaders,
+  //   body: payload ? JSON.stringify(payload) : undefined,
+  //   credentials: "include",
+  // });
+  const isFormData = payload instanceof FormData;
+
+  const finalHeaders = {
+    ...(isFormData ? {} : { "Content-Type": "application/json" }),
     ...headers,
   };
 
   const response = await fetch(url, {
     method,
-    headers: defaultHeaders,
-    body: payload ? JSON.stringify(payload) : undefined,
+    headers: finalHeaders,
+    body: isFormData ? payload : payload ? JSON.stringify(payload) : undefined,
     credentials: "include",
   });
-
   if (!response.ok) {
     const fallbackMessages: Record<number, string> = {
       400: "Invalid request. Please check your input.",
