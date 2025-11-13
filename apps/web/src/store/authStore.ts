@@ -1,21 +1,25 @@
 import { create } from "zustand";
+import { devtools } from "zustand/middleware";
 import type { AuthStore } from "./types";
-
+import { type StateCreator } from "zustand";
 const initialValue = {
   token: null,
   user: null,
 };
 
-export const useAuthStore = create<AuthStore>((set) => ({
+const store: StateCreator<AuthStore> = (set) => ({
   ...initialValue,
 
   setAuth: (auth) => set({ token: auth.token, user: auth.user }),
+
   clearAuth: () => set(initialValue),
-  setToken: (token) =>
-    set((state) => ({
-      ...state,
-      token,
-    })),
-}));
+
+  setToken: (token) => set((state) => ({ ...state, token })),
+});
+
+export const useAuthStore =
+  import.meta.env.MODE === "development"
+    ? create<AuthStore>()(devtools(store, { name: "AuthStore" }))
+    : create<AuthStore>()(store);
 
 export default useAuthStore;

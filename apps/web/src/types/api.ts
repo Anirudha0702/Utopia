@@ -21,7 +21,7 @@ export const userSchema = z.object({
   id: z.uuid(),
   name: z.string(),
   email: z.email(),
-  privacy: z.enum(["public", "private"]),
+  privacy: z.enum(["Public", "Private", "Friends"]),
   isVerified: z.boolean(),
   profilePicture: z.string().nullable(),
   bio: z.string(),
@@ -56,6 +56,7 @@ const AuthserResponse = z.object({
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
   lastLogin: z.coerce.date().nullable(),
+  privacy: z.enum(["Public", "Private", "Friends"]),
 });
 // Register Endpoint API Type
 export const registerDataSchema = z.object({

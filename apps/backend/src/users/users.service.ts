@@ -47,4 +47,10 @@ export class UserService {
     });
     return user;
   }
+  async findOneById(id: string): Promise<User | null> {
+    const user = await this.userRepository.findOneBy({
+      id,
+    });
+    return user;
+  }
 }

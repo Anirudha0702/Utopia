@@ -44,6 +44,7 @@ export class InternalUser {
   createdAt: Date;
   updatedAt: Date;
   lastLogin?: Date;
+  privacy: 'Public' | 'Private' | 'Friends';
 
   constructor(user: User) {
     this.id = user.id;
@@ -57,6 +58,7 @@ export class InternalUser {
     this.createdAt = user.createdAt;
     this.updatedAt = user.updatedAt;
     this.lastLogin = user.lastLogin;
+    this.privacy = user.privacy;
   }
 }
 

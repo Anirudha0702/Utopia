@@ -5,6 +5,7 @@ export const authUser = z.object({
   name: z.string(),
   id: z.string(),
   email: z.string(),
+  privacy: z.enum(["Public", "Private", "Friends"]),
 });
 
 export const auth = z.object({

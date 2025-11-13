@@ -53,4 +53,12 @@ export class AuthController {
   facebookAuthRedirect(@Req() req: Request) {
     return req.user;
   }
+  @Get('get-token')
+  GenerateAccessToken(@Req() req: Request) {
+    return this.authService.GenerateAccessToken(req);
+  }
+  @Get('me')
+  me(@Req() req: Request) {
+    return this.authService.me(req);
+  }
 }

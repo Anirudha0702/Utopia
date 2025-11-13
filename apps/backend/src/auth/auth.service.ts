@@ -14,7 +14,7 @@ import {
 import { UserService } from 'src/users/users.service';
 import { matchHash } from 'src/utils/security';
 import { JwtService } from './jwt/jwt.service';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 @Injectable()
 export class AuthService {
   constructor(
@@ -45,7 +45,7 @@ export class AuthService {
 
       const passwordMatched = await matchHash(cred.password, existing.password);
       if (!passwordMatched)
-        throw new UnauthorizedException('INvalid Credentials');
+        throw new UnauthorizedException('Invalid Credentials');
       const payload = {
         email: existing.email,
         name: existing.name,
@@ -79,10 +79,64 @@ export class AuthService {
       );
     }
   }
+  async oauthSignIn() {}
 
-  async oauthSignIn(
-    code: string,
-    state: string,
-    res: Response,
-  ): Promise<string> {}
+  GenerateAccessToken(req: Request) {
+    try {
+      const cookies = req.cookies as Record<string, string>;
+      const refreshToken = cookies?.refreshToken;
+      if (!refreshToken)
+        throw new UnauthorizedException('Invalid token format');
+      const { id, email, name, privacy } = this.jwt.verifyToken<{
+        id: string;
+        email: string;
+        name: string;
+        privacy: string;
+      }>(refreshToken);
+      const accessToken = this.jwt.createToken(
+        { id, email, name, privacy },
+        'access',
+        60 * 5,
+      );
+      return { token: accessToken };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
+    }
+  }
+  me(req: Request) {
+    try {
+      const authHeader = req.headers['authorization'];
+      const cookies = req.cookies as Record<string, string>;
+      const refreshToken = cookies?.refreshToken;
+      if (!authHeader && !refreshToken)
+        throw new UnauthorizedException('No token provided');
+      let token: string | undefined;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1];
+      } else if (refreshToken) {
+        token = refreshToken;
+      }
+      if (!token) throw new UnauthorizedException('Invalid token format');
+      const { id, email, name, privacy } = this.jwt.verifyToken<{
+        id: string;
+        email: string;
+        name: string;
+        privacy: string;
+      }>(token);
+      const accessToken = this.jwt.createToken(
+        { id, email, name, privacy },
+        'access',
+        60 * 5,
+      );
+      return { token: accessToken, user: { id, email, name, privacy } };
+    } catch (error: unknown) {
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
+    }
+  }
 }
