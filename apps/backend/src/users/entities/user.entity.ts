@@ -45,8 +45,19 @@ export class User {
   @Column()
   name: string;
 
-  @Column({ nullable: true })
+  @Column({
+    nullable: true,
+    default:
+      'https://res.cloudinary.com/dnmshy1ag/image/upload/v1763277858/flat-design-male-female-symbols_23-2149288474_yhj2i1.webp',
+  })
   profilePicture: string;
+
+  @Column({
+    nullable: true,
+    default:
+      'https://res.cloudinary.com/dnmshy1ag/image/upload/v1763277703/360_F_1058923741_Ug7YblqBl7rRxNeJ5iOxvONEZys87NqC_ebaw9d.webp',
+  })
+  coverPicture: string;
 
   @Column({ nullable: true, length: 160 })
   bio: string;

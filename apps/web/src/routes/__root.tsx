@@ -19,17 +19,17 @@ function RootComponent() {
   const isAuthRoute = matches.some(
     (m) => m.routeId === "/login/" || m.routeId === "/register/"
   );
+  const isHomeRoute = matches.some((m) => m.routeId === "/");
   useEffect(() => {
     (async () => {
-      const refreshRes = await fetch(`/api/auth/me`, {
+      const refreshRes = await fetch(`api/auth/me`, {
         method: "GET",
         credentials: "include",
       });
       if (refreshRes.ok) {
         const { data } = await refreshRes.json();
-        console.log("User authenticated:", data);
         setAuth(data);
-      } else {
+      } else if (!isHomeRoute) {
         router.navigate({ to: "/login" });
       }
     })();

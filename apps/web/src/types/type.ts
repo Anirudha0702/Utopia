@@ -70,3 +70,40 @@ export const verifyUserSchema = z.object({
   id: z.uuid(),
 });
 export type VerifyUserType = z.infer<typeof verifyUserSchema>;
+
+export const UpdateUserFormSchema = z.object({
+  email: z.string().email("Please enter a valid email").optional(),
+
+  name: z.string().min(2, "Name must be at least 2 characters").optional(),
+  dob: z.string().optional(),
+  gender: z.enum(["male", "female", "other"]).optional(),
+
+  bio: z.string().max(160, "Bio must be at most 100 characters").optional(),
+  password: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .optional(),
+  profilePicture: z
+    .custom<File>((val) => val instanceof File, {
+      message: "Please upload a valid file",
+    })
+    .refine((file) => !file || file.size <= 2 * 1024 * 1024, "Max 2MB allowed")
+    .refine(
+      (file) => !file || ["image/jpeg", "image/png"].includes(file.type),
+      "Only JPG/PNG allowed"
+    )
+    .optional(),
+
+  coverPicture: z
+    .custom<File>((val) => val instanceof File, {
+      message: "Please upload a valid file",
+    })
+    .refine((file) => !file || file.size <= 5 * 1024 * 1024, "Max 5MB allowed")
+    .refine(
+      (file) => !file || ["image/jpeg", "image/png"].includes(file.type),
+      "Only JPG/PNG allowed"
+    )
+    .optional(),
+});
+
+export type UpdateUser = z.infer<typeof UpdateUserFormSchema>;

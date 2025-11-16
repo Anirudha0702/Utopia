@@ -60,6 +60,8 @@ export function LoginPage({
             id: user.id,
             email: user.email,
             privacy: user.privacy,
+            profilePicture: user.profilePicture ?? null,
+            coverPicture: user.coverPicture ?? null,
           },
         });
         toast.success(data.message || "Login successful!");

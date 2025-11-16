@@ -106,7 +106,7 @@ export class AuthService {
       );
     }
   }
-  me(req: Request) {
+  async me(req: Request) {
     try {
       const authHeader = req.headers['authorization'];
       const cookies = req.cookies as Record<string, string>;
@@ -126,12 +126,24 @@ export class AuthService {
         name: string;
         privacy: string;
       }>(token);
+      const user = await this.userService.findOneById(id);
+      if (!user) throw new UnauthorizedException('User not found');
       const accessToken = this.jwt.createToken(
         { id, email, name, privacy },
         'access',
         60 * 5,
       );
-      return { token: accessToken, user: { id, email, name, privacy } };
+      return {
+        token: accessToken,
+        user: {
+          id,
+          email,
+          name,
+          privacy,
+          profilePicture: user?.profilePicture,
+          coverPicture: user?.coverPicture,
+        },
+      };
     } catch (error: unknown) {
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException(

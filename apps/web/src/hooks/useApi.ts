@@ -67,7 +67,7 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
 
   if (response.status === 401) {
     try {
-      const refreshRes = await fetch(`/api/auth/get-token`, {
+      const refreshRes = await fetch(`api/auth/get-token`, {
         method: "GET",
         credentials: "include",
       });
