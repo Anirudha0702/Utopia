@@ -25,4 +25,5 @@ export type AuthStore = {
   setAuth: (auth: Auth) => void;
   clearAuth: () => void;
   setToken: (token: string) => void;
+  setUser: (user: AuthUser) => void;
 };

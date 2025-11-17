@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
 @Injectable()
@@ -31,7 +35,7 @@ export class JwtService {
     try {
       return jwt.verify(token, this.secretKey) as T;
     } catch (err: unknown) {
-      throw new InternalServerErrorException(
+      throw new UnauthorizedException(
         err instanceof Error ? err.message : 'An unexpected error occurred',
       );
     }

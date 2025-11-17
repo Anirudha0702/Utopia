@@ -12,9 +12,9 @@ import {
 import { Input } from "../ui/input";
 import useAuthStore from "@/store/authStore";
 import { Textarea } from "../ui/textarea";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { Button } from "../ui/button";
-import { CalendarIcon, Upload } from "lucide-react";
+import { CalendarIcon, Loader } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -25,11 +25,21 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import { cn } from "@/lib/utils";
 import { Calendar } from "../ui/calendar";
-
-function UpdateUserForm() {
+import { useApiMutation } from "@/hooks/useApi";
+import {
+  updateResponseSchema,
+  type ApiError,
+  type UpdateUserResponse,
+  type User,
+} from "@/types/api";
+import { toast } from "sonner";
+interface UpdateUserFormProps {
+  onClose: (user: User | null) => void;
+}
+function UpdateUserForm({ onClose }: UpdateUserFormProps) {
   const store = useAuthStore();
-  const [open, setOpen] = useState(false);
   const [wannaChangePassword, setWannaChangePassword] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
   const genderAlreadySet = false;
   const [profilePreview, setProfilePreview] = useState(
     store.user?.profilePicture ?? null
@@ -49,10 +59,6 @@ function UpdateUserForm() {
     fieldSetter(file);
   };
 
-  const onSubmit = (values: UpdateUser) => {
-    console.log("FINAL SUBMIT DATA → ", values);
-    setOpen(false);
-  };
   const handlePasswordChangeClick = () =>
     setWannaChangePassword(!wannaChangePassword);
 
@@ -61,24 +67,72 @@ function UpdateUserForm() {
     mode: "onChange",
     reValidateMode: "onChange",
     defaultValues: {
-      email: store.user?.email || "",
       name: store.user?.name || "",
-      dob: "",
+      dob: undefined,
       gender: undefined,
-      bio: "",
+      bio: undefined,
       password: undefined,
       profilePicture: undefined,
       coverPicture: undefined,
       currentpassword: undefined,
     },
   });
-  const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const handleClick = () => fileRef.current?.click();
+  const updateProfile = useApiMutation<UpdateUserResponse, FormData>(
+    {
+      endpoint: `/users/${store.user?.id}`,
+      method: "PATCH",
+      responseSchema: updateResponseSchema,
+    },
+    {
+      onSuccess: (_data) => {
+        const { user } = _data.data;
+
+        onClose(user);
+        toast.success(_data.message || "Login successful!");
+      },
+      onError: (error: ApiError) => {
+        toast.error(error.message || "Login failed. Please try again.");
+        console.log(error);
+        onClose(null);
+      },
+    }
+  );
+  const onSubmit = (values: UpdateUser) => {
+    const formData = new FormData();
+
+    // append text fields
+    formData.append("name", values.name || "");
+    formData.append("bio", values.bio || "");
+    formData.append("dob", date?.toISOString() || "");
+    formData.append("gender", values.gender || "");
+
+    // OPTIONAL file fields
+    if (values.profilePicture instanceof File) {
+      formData.append("profilePicture", values.profilePicture);
+    }
+
+    if (values.coverPicture instanceof File) {
+      formData.append("coverPicture", values.coverPicture);
+    }
+
+    // password fields (optional)
+    if (values.currentpassword) {
+      formData.append("currentPassword", values.currentpassword);
+    }
+    if (values.password) {
+      formData.append("newPassword", values.password);
+    }
+
+    updateProfile.mutate(formData);
+  };
   if (!store.user) return <div>Loading...</div>;
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-6 relative"
+      >
         {/* COVER UPLOAD */}
         <FormField
           control={form.control}
@@ -107,6 +161,7 @@ function UpdateUserForm() {
                     onChange={(e) =>
                       handleFile(e, setCoverPreview, field.onChange)
                     }
+                    disabled={updateProfile.isPending}
                   />
                 </div>
               </FormControl>
@@ -137,23 +192,11 @@ function UpdateUserForm() {
                       </div>
                     )}
 
-                    {profilePreview && (
-                      <button
-                        type="button"
-                        className="absolute top-1 right-1 bg-black/70 text-white text-xs px-1 rounded"
-                        onClick={() => {
-                          setProfilePreview(null);
-                          field.onChange(undefined);
-                        }}
-                      >
-                        ✕
-                      </button>
-                    )}
-
                     <input
                       type="file"
                       accept="image/*"
                       className="absolute inset-0 opacity-0 cursor-pointer"
+                      disabled={updateProfile.isPending}
                       onChange={(e) =>
                         handleFile(e, setProfilePreview, field.onChange)
                       }
@@ -165,19 +208,9 @@ function UpdateUserForm() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="Your name" {...field} disabled />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <label className="font-medium">Email</label>
+        <Input placeholder="Your name" disabled value={store.user?.email} />
+
         {/* NAME */}
         <FormField
           control={form.control}
@@ -186,7 +219,11 @@ function UpdateUserForm() {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" {...field} />
+                <Input
+                  placeholder="Your name"
+                  {...field}
+                  disabled={updateProfile.isPending}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -199,7 +236,12 @@ function UpdateUserForm() {
             <FormItem>
               <FormLabel>Bio</FormLabel>
               <FormControl>
-                <Textarea rows={3} placeholder="Short bio..." {...field} />
+                <Textarea
+                  rows={3}
+                  placeholder="About yourself..."
+                  {...field}
+                  disabled={updateProfile.isPending}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -233,9 +275,10 @@ function UpdateUserForm() {
                         mode="single"
                         selected={field.value as Date | undefined}
                         captionLayout="dropdown"
-                        onSelect={(date) =>
-                          field.onChange(date?.toDateString())
-                        }
+                        onSelect={(date) => {
+                          setDate(date);
+                          field.onChange(date?.toDateString());
+                        }}
                         disabled={(d) => d > new Date()}
                       />
                     </PopoverContent>
@@ -263,9 +306,9 @@ function UpdateUserForm() {
                         <SelectValue placeholder="Select gender" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                        <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -305,6 +348,7 @@ function UpdateUserForm() {
                       type="password"
                       placeholder="Enter current password"
                       {...field}
+                      disabled={updateProfile.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -322,6 +366,7 @@ function UpdateUserForm() {
                       type="password"
                       placeholder="Enter new password"
                       {...field}
+                      disabled={updateProfile.isPending}
                     />
                   </FormControl>
                   <FormMessage />
@@ -331,8 +376,16 @@ function UpdateUserForm() {
           </>
         )}
         <div className="flex justify-end">
-          <Button type="submit" className="right-0">
-            Save changes
+          <Button
+            type="submit"
+            className="w-28"
+            disabled={updateProfile.isPending}
+          >
+            {updateProfile.isPending ? (
+              <Loader className="animate-spin" />
+            ) : (
+              "Save changes"
+            )}
           </Button>
         </div>
       </form>

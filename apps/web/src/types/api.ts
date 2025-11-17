@@ -27,10 +27,8 @@ export const userSchema = z.object({
   coverPicture: z.string().nullable(),
   bio: z.string(),
   dateOfBirth: z.coerce.date().nullable(),
-  blocked: z.boolean(),
   isActive: z.boolean(),
   lastLogin: z.coerce.date().nullable(),
-  notifications: z.boolean(),
   createdAt: z.coerce.date(),
   updatedAt: z.coerce.date(),
 });
@@ -111,3 +109,11 @@ export type VerifyUserResponse = z.infer<typeof VerifyUserResponseSchema>;
 
 export const logoutSchema = apiResponseSchema(z.null());
 export type LogoutResponse = z.infer<typeof logoutSchema>;
+
+export const updateUserDataSchema = z.object({
+  user: userSchema,
+});
+
+export const updateResponseSchema = apiResponseSchema(updateUserDataSchema);
+
+export type UpdateUserResponse = z.infer<typeof updateResponseSchema>;

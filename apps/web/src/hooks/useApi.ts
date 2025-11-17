@@ -42,15 +42,15 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
     ? endpoint
     : `/${endpoint}`;
   const url = buildUrl(`api${normalizedEndpoint}`, queryParams);
-  const isFormData = payload instanceof FormData;
-  const token = useAuthStore.getState().token;
-  const finalHeaders = {
-    ...(isFormData ? {} : { "Content-Type": "application/json" }),
-    ...headers,
-    ...(token ? { authorization: `Bearer ${token}` } : {}),
-  };
 
   const makeRequest = async (): Promise<Response> => {
+    const isFormData = payload instanceof FormData;
+    const token = useAuthStore.getState().token;
+    const finalHeaders = {
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
+      ...headers,
+      ...(token ? { authorization: `Bearer ${token}` } : {}),
+    };
     return fetch(url, {
       method,
       headers: finalHeaders,
@@ -65,7 +65,7 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
 
   let response = await makeRequest();
 
-  if (response.status === 401) {
+  if (response.status === 401 && normalizedEndpoint !== "/auth/login") {
     try {
       const refreshRes = await fetch(`api/auth/get-token`, {
         method: "GET",
@@ -74,7 +74,9 @@ export const fetchApi = async <TResponse, TPayload = undefined>(
 
       if (refreshRes.ok) {
         const data = await refreshRes.json();
-        if (data?.token) useAuthStore.getState().setToken(data.token);
+        console.log(data.data?.token);
+        if (data.data?.token)
+          useAuthStore.getState().setToken(data.data?.token);
 
         response = await makeRequest();
       } else {

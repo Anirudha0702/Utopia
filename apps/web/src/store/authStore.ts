@@ -15,6 +15,8 @@ const store: StateCreator<AuthStore> = (set) => ({
   clearAuth: () => set(initialValue),
 
   setToken: (token) => set((state) => ({ ...state, token })),
+
+  setUser: (user) => set((state) => ({ ...state, user })),
 });
 
 export const useAuthStore =

@@ -5,6 +5,7 @@ import { Pencil } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import UpdateUserForm from "../forms/UpdateUser";
+import type { User } from "@/types/api";
 
 function ProfilePage() {
   const auth = useAuthStore();
@@ -14,37 +15,19 @@ function ProfilePage() {
     setUpdateDialog(true);
   };
   const dialogRef = useRef<HTMLDivElement | null>(null);
-  // useEffect(() => {
-  //   const el = dialogRef.current;
-  //   if (!el) return;
 
-  //   // Function to scroll only if scrollable
-  //   const scrollIfScrollable = () => {
-  //     if (el.scrollHeight > el.clientHeight) {
-  //       el.scrollTop = el.scrollHeight; // scroll to bottom
-  //     }
-  //   };
-
-  //   // When dialog opens → scroll once
-  //   if (updateDialog) {
-  //     // Wait for shadcn animation + content to render
-  //     setTimeout(scrollIfScrollable, 20);
-  //   }
-
-  //   // Observe DOM changes inside DialogContent
-  //   const observer = new MutationObserver(() => {
-  //     scrollIfScrollable();
-  //   });
-
-  //   observer.observe(el, {
-  //     childList: true,
-  //     subtree: true,
-  //     characterData: true,
-  //   });
-
-  //   // Cleanup observer when dialog closes or unmounts
-  //   return () => observer.disconnect();
-  // }, []);
+  const handleUserUpdate = (user: User | null) => {
+    setUpdateDialog(false);
+    if (!user) return;
+    auth.setUser({
+      name: user.name,
+      id: user.id,
+      email: user.email,
+      profilePicture: user.profilePicture,
+      coverPicture: user.coverPicture,
+      privacy: user.privacy,
+    });
+  };
   if (!auth.user) return <div>Loading...</div>;
   return (
     <div className="px-4">
@@ -140,7 +123,7 @@ function ProfilePage() {
             <DialogTitle>Update Profile</DialogTitle>
           </DialogHeader>
 
-          <UpdateUserForm />
+          <UpdateUserForm onClose={handleUserUpdate} />
         </DialogContent>
       </Dialog>
     </div>

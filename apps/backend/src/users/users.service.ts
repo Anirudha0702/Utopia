@@ -14,6 +14,7 @@ import * as bcrypt from 'bcrypt';
 import { UploadService } from 'src/upload/upload.service';
 import { Express } from 'express';
 import { matchHash } from 'src/utils/security';
+import { InternalUser } from 'src/auth/dto/auth.dto';
 @Injectable()
 export class UserService {
   constructor(
@@ -51,13 +52,14 @@ export class UserService {
     coverPicture?: Express.Multer.File,
   ) {
     try {
+      console.log('service');
       const user = await this.findOneById(id);
       if (!user) throw new NotFoundException('user not found');
       if (profilePicture) {
         if (profilePicture) {
           const res = await this.uploadService.uploadFromBuffer(
             profilePicture,
-            'profile_pictures',
+            `profile_pictures/${id}`,
           );
 
           if ('secure_url' in res) {
@@ -70,7 +72,7 @@ export class UserService {
       if (coverPicture) {
         const res = await this.uploadService.uploadFromBuffer(
           coverPicture,
-          'cover_pictures',
+          `cover_pictures/${id}`,
         );
         if ('secure_url' in res) {
           user.coverPicture = res.secure_url as string;
@@ -80,14 +82,14 @@ export class UserService {
       }
 
       if (updateUserDto.name) user.name = updateUserDto.name;
-      if (!user.dateOfBirth && updateUserDto.dateOfBirth)
-        user.dateOfBirth = new Date(updateUserDto.dateOfBirth);
+      if (!user.dateOfBirth && updateUserDto.dob)
+        user.dateOfBirth = new Date(updateUserDto.dob);
       if (updateUserDto.bio) user.bio = updateUserDto.bio;
 
       if (updateUserDto.currentPassword && updateUserDto.newPassword) {
         const passwordMatched = await matchHash(
-          user.password,
           updateUserDto.currentPassword,
+          user.password,
         );
         if (!passwordMatched) throw new UnauthorizedException('Wrong Password');
         const hashedPassword = await bcrypt.hash(updateUserDto.newPassword, 10);
@@ -95,7 +97,10 @@ export class UserService {
       }
       if (!user.gender && updateUserDto.gender)
         user.gender = updateUserDto.gender;
-      return await this.userRepository.save(user);
+      const updatedUser = new InternalUser(
+        await this.userRepository.save(user),
+      );
+      return { user: updatedUser };
     } catch (error: unknown) {
       throw new InternalServerErrorException(
         error instanceof Error ? error.message : 'An unexpected error occurred',
@@ -117,9 +122,5 @@ export class UserService {
       id,
     });
     return user;
-  }
-
-  async upload(file: Express.Multer.File) {
-    await this.uploadService.uploadFromBuffer(file);
   }
 }

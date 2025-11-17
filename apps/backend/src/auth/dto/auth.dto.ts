@@ -6,7 +6,7 @@ import {
   IsOptional,
   MinLength,
 } from 'class-validator';
-import { User } from 'src/users/entities/user.entity';
+import { Gender, User } from 'src/users/entities/user.entity';
 
 export class SignupDTO {
   @IsEmail({}, { message: 'Invalid email format' })
@@ -46,6 +46,7 @@ export class InternalUser {
   updatedAt: Date;
   lastLogin?: Date;
   privacy: 'Public' | 'Private' | 'Friends';
+  gender: Gender;
 
   constructor(user: User) {
     this.id = user.id;
@@ -61,6 +62,7 @@ export class InternalUser {
     this.lastLogin = user.lastLogin;
     this.privacy = user.privacy;
     this.coverPicture = user.coverPicture;
+    this.gender = user.gender;
   }
 }
 

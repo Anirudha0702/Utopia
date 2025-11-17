@@ -72,11 +72,9 @@ export const verifyUserSchema = z.object({
 export type VerifyUserType = z.infer<typeof verifyUserSchema>;
 
 export const UpdateUserFormSchema = z.object({
-  email: z.email("Please enter a valid email").optional(),
-
   name: z.string().min(2, "Name must be at least 2 characters").optional(),
   dob: z.string().optional(),
-  gender: z.enum(["male", "female", "other"]).optional(),
+  gender: z.enum(["Male", "Female", "Other"]).optional(),
 
   bio: z.string().max(160, "Bio must be at most 100 characters").optional(),
   password: z
