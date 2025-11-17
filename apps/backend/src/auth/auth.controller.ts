@@ -66,7 +66,7 @@ export class AuthController {
   }
   @Post('logout')
   logout(@Res({ passthrough: true }) res: Response) {
-    res.clearCookie('refreshToken');
+    res.clearCookie('utopia_refreshToken');
     return { message: 'Logged out successfully' };
   }
 }

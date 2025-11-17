@@ -168,7 +168,7 @@ function Navbar() {
                   <Settings />
                 </DropdownMenuShortcut>
               </DropdownMenuItem>
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleMenuClick}>
                 Logout
                 <DropdownMenuShortcut>
                   <LogOut />

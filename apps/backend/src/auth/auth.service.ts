@@ -60,7 +60,7 @@ export class AuthService {
       );
       const user = new InternalUser(existing);
 
-      res.cookie('refreshToken', refreshToken, {
+      res.cookie('utopia_refreshToken', refreshToken, {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
@@ -84,7 +84,7 @@ export class AuthService {
   GenerateAccessToken(req: Request) {
     try {
       const cookies = req.cookies as Record<string, string>;
-      const refreshToken = cookies?.refreshToken;
+      const refreshToken = cookies?.utopia_refreshToken;
       if (!refreshToken)
         throw new UnauthorizedException('Invalid token format');
       const { id, email, name, privacy } = this.jwt.verifyToken<{
@@ -110,7 +110,7 @@ export class AuthService {
     try {
       const authHeader = req.headers['authorization'];
       const cookies = req.cookies as Record<string, string>;
-      const refreshToken = cookies?.refreshToken;
+      const refreshToken = cookies?.utopia_refreshToken;
       if (!authHeader && !refreshToken)
         throw new UnauthorizedException('No token provided');
       let token: string | undefined;

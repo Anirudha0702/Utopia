@@ -29,6 +29,7 @@ import { Calendar } from "../ui/calendar";
 function UpdateUserForm() {
   const store = useAuthStore();
   const [open, setOpen] = useState(false);
+  const [wannaChangePassword, setWannaChangePassword] = useState(false);
   const genderAlreadySet = false;
   const [profilePreview, setProfilePreview] = useState(
     store.user?.profilePicture ?? null
@@ -52,6 +53,8 @@ function UpdateUserForm() {
     console.log("FINAL SUBMIT DATA → ", values);
     setOpen(false);
   };
+  const handlePasswordChangeClick = () =>
+    setWannaChangePassword(!wannaChangePassword);
 
   const form = useForm<UpdateUser>({
     resolver: zodResolver(UpdateUserFormSchema),
@@ -63,9 +66,10 @@ function UpdateUserForm() {
       dob: "",
       gender: undefined,
       bio: "",
-      password: "",
+      password: undefined,
       profilePicture: undefined,
       coverPicture: undefined,
+      currentpassword: undefined,
     },
   });
   const fileRef = useRef<HTMLInputElement | null>(null);
@@ -73,156 +77,6 @@ function UpdateUserForm() {
   const handleClick = () => fileRef.current?.click();
   if (!store.user) return <div>Loading...</div>;
   return (
-    // <Form {...form}>
-    //   <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-    //     {/* COVER PHOTO */}
-    //     <FormField
-    //       control={form.control}
-    //       name="coverPicture"
-    //       render={({ field }) => (
-    //         <FormItem>
-    //           <FormLabel>Cover Photo</FormLabel>
-    //           <FormControl>
-    //             <div className="relative w-full h-36 rounded-xl overflow-hidden bg-muted group">
-    //               {coverPreview ? (
-    //                 <img
-    //                   src={coverPreview}
-    //                   alt="Cover preview"
-    //                   className="w-full h-full object-cover"
-    //                 />
-    //               ) : (
-    //                 <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
-    //                   Upload cover photo
-    //                 </div>
-    //               )}
-
-    //               {/* REMOVE BTN */}
-    //               {coverPreview && (
-    //                 <button
-    //                   type="button"
-    //                   onClick={() => {
-    //                     setCoverPreview(null);
-    //                     field.onChange(undefined);
-    //                   }}
-    //                   className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded"
-    //                 >
-    //                   Remove
-    //                 </button>
-    //               )}
-
-    //               {/* FILE PICKER */}
-    //               <input
-    //                 type="file"
-    //                 accept="image/*"
-    //                 className="absolute inset-0 opacity-0 cursor-pointer"
-    //                 onChange={(e) => {
-    //                   const f = e.target.files?.[0];
-    //                   if (f) {
-    //                     setCoverPreview(URL.createObjectURL(f));
-    //                     field.onChange(f);
-    //                   }
-    //                 }}
-    //               />
-    //             </div>
-    //           </FormControl>
-    //           <FormMessage />
-    //         </FormItem>
-    //       )}
-    //     />
-
-    //     {/* PROFILE PHOTO */}
-    //     <FormField
-    //       control={form.control}
-    //       name="profilePicture"
-    //       render={({ field }) => (
-    //         <FormItem>
-    //           <FormLabel>Profile Picture</FormLabel>
-    //           <FormControl>
-    //             <div className="flex justify-center">
-    //               <div className="relative w-24 h-24 rounded-full overflow-hidden bg-muted border group">
-    //                 {profilePreview ? (
-    //                   <img
-    //                     src={profilePreview}
-    //                     alt="Profile preview"
-    //                     className="w-full h-full object-cover"
-    //                   />
-    //                 ) : (
-    //                   <div className="flex items-center justify-center h-full text-xs text-muted-foreground">
-    //                     Upload
-    //                   </div>
-    //                 )}
-
-    //                 {/* REMOVE BTN */}
-    //                 {profilePreview && (
-    //                   <button
-    //                     type="button"
-    //                     onClick={() => {
-    //                       setProfilePreview(null);
-    //                       field.onChange(undefined);
-    //                     }}
-    //                     className="absolute top-1 right-1 bg-black/60 text-white text-xs px-1 py-0.5 rounded"
-    //                   >
-    //                     ✕
-    //                   </button>
-    //                 )}
-
-    //                 {/* FILE PICKER */}
-    //                 <input
-    //                   type="file"
-    //                   accept="image/*"
-    //                   className="absolute inset-0 opacity-0 cursor-pointer"
-    //                   onChange={(e) => {
-    //                     const f = e.target.files?.[0];
-    //                     if (f) {
-    //                       setProfilePreview(URL.createObjectURL(f));
-    //                       field.onChange(f);
-    //                     }
-    //                   }}
-    //                 />
-    //               </div>
-    //             </div>
-    //           </FormControl>
-    //           <FormMessage />
-    //         </FormItem>
-    //       )}
-    //     />
-
-    //     {/* NAME FIELD */}
-    //     <FormField
-    //       control={form.control}
-    //       name="name"
-    //       render={({ field }) => (
-    //         <FormItem>
-    //           <FormLabel>Name</FormLabel>
-    //           <FormControl>
-    //             <Input placeholder="Your name" {...field} />
-    //           </FormControl>
-    //           <FormMessage />
-    //         </FormItem>
-    //       )}
-    //     />
-
-    //     {/* BIO */}
-    //     <FormField
-    //       control={form.control}
-    //       name="bio"
-    //       render={({ field }) => (
-    //         <FormItem>
-    //           <FormLabel>Bio</FormLabel>
-    //           <FormControl>
-    //             <Textarea rows={3} placeholder="Short bio..." {...field} />
-    //           </FormControl>
-    //           <FormMessage />
-    //         </FormItem>
-    //       )}
-    //     />
-
-    //     <Button type="submit" className="w-full">
-    //       Save Changes
-    //     </Button>
-    //   </form>
-    // </Form>
-
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* COVER UPLOAD */}
@@ -233,32 +87,17 @@ function UpdateUserForm() {
             <FormItem>
               <FormLabel>Cover Photo</FormLabel>
               <FormControl>
-                <div className="relative w-full h-40 rounded-xl overflow-hidden bg-muted cursor-pointer">
+                <div className="relative w-full h-30 rounded-xl overflow-hidden bg-muted cursor-pointer">
                   {coverPreview ? (
                     <img
                       src={coverPreview}
                       alt="cover"
-                      className="object-cover"
+                      className="object-cover absolute h-full w-full"
                     />
                   ) : (
                     <div className="flex items-center justify-center h-full text-sm text-muted-foreground">
                       Upload cover image
                     </div>
-                  )}
-
-                  {coverPreview && (
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="destructive"
-                      className="absolute top-2 right-2"
-                      onClick={() => {
-                        setCoverPreview(null);
-                        field.onChange(undefined);
-                      }}
-                    >
-                      Remove
-                    </Button>
                   )}
 
                   <input
@@ -275,7 +114,6 @@ function UpdateUserForm() {
             </FormItem>
           )}
         />
-
         {/* PROFILE PICTURE */}
         <FormField
           control={form.control}
@@ -354,110 +192,149 @@ function UpdateUserForm() {
             </FormItem>
           )}
         />
-
-        {/* DOB */}
-        {/* <FormField
-          control={form.control}
-          name="dob"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date of Birth</FormLabel>
-              <FormControl>
-                <Input type="date" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
         <FormField
           control={form.control}
-          name="dob"
+          name="bio"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date of Birth</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-start text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? field.value.toString() : "Pick a date"}
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent align="start" className="p-0">
-                  <Calendar
-                    mode="single"
-                    selected={field.value as Date | undefined}
-                    captionLayout="dropdown"
-                    onSelect={(date) => field.onChange(date?.toDateString())}
-                    disabled={(d) => d > new Date()}
-                  />
-                </PopoverContent>
-              </Popover>
+              <FormLabel>Bio</FormLabel>
+              <FormControl>
+                <Textarea rows={3} placeholder="Short bio..." {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        {/* GENDER (LOCK AFTER FIRST SET) */}
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <FormControl>
-                <Select
-                  disabled={genderAlreadySet}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="male">Male</SelectItem>
-                    <SelectItem value="female">Female</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </FormControl>
-
-              {genderAlreadySet && (
-                <p className="text-xs text-muted-foreground">
-                  Gender can be selected only once.
-                </p>
+        <div className="flex  gap-2">
+          <div className="flex-1">
+            <FormField
+              control={form.control}
+              name="dob"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Date of Birth</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? field.value.toString() : "Pick a date"}
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="p-0">
+                      <Calendar
+                        mode="single"
+                        selected={field.value as Date | undefined}
+                        captionLayout="dropdown"
+                        onSelect={(date) =>
+                          field.onChange(date?.toDateString())
+                        }
+                        disabled={(d) => d > new Date()}
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
               )}
+            />
+          </div>
 
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          <div className="flex-1">
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <FormControl>
+                    <Select
+                      disabled={genderAlreadySet}
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
 
-        {/* PASSWORD */}
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>New Password</FormLabel>
-              <FormControl>
-                <Input
-                  type="password"
-                  placeholder="Enter new password"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+                  {genderAlreadySet && (
+                    <p className="text-xs text-muted-foreground">
+                      Gender can be selected only once.
+                    </p>
+                  )}
+
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
+
+        <span
+          className="underline  text-sm cursor-pointer mb-2 block"
+          onClick={handlePasswordChangeClick}
+        >
+          {wannaChangePassword
+            ? "Dont want to change password?"
+            : "Change password?"}
+        </span>
+
+        {wannaChangePassword && (
+          <>
+            <FormField
+              control={form.control}
+              name="currentpassword"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Current Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter current password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>New Password</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="password"
+                      placeholder="Enter new password"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
+        <div className="flex justify-end">
+          <Button type="submit" className="right-0">
+            Save changes
+          </Button>
+        </div>
       </form>
     </Form>
   );

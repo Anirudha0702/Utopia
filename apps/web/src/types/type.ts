@@ -72,7 +72,7 @@ export const verifyUserSchema = z.object({
 export type VerifyUserType = z.infer<typeof verifyUserSchema>;
 
 export const UpdateUserFormSchema = z.object({
-  email: z.string().email("Please enter a valid email").optional(),
+  email: z.email("Please enter a valid email").optional(),
 
   name: z.string().min(2, "Name must be at least 2 characters").optional(),
   dob: z.string().optional(),
@@ -83,11 +83,18 @@ export const UpdateUserFormSchema = z.object({
     .string()
     .min(6, "Password must be at least 6 characters")
     .optional(),
+  currentpassword: z
+    .string()
+    .min(6, "Password must be at least 6 characters")
+    .optional(),
   profilePicture: z
     .custom<File>((val) => val instanceof File, {
       message: "Please upload a valid file",
     })
-    .refine((file) => !file || file.size <= 2 * 1024 * 1024, "Max 2MB allowed")
+    .refine(
+      (file) => !file || file.size <= 1.5 * 1024 * 1024,
+      "Max 1.5MB allowed"
+    )
     .refine(
       (file) => !file || ["image/jpeg", "image/png"].includes(file.type),
       "Only JPG/PNG allowed"
@@ -98,7 +105,7 @@ export const UpdateUserFormSchema = z.object({
     .custom<File>((val) => val instanceof File, {
       message: "Please upload a valid file",
     })
-    .refine((file) => !file || file.size <= 5 * 1024 * 1024, "Max 5MB allowed")
+    .refine((file) => !file || file.size <= 3 * 1024 * 1024, "Max 3MB allowed")
     .refine(
       (file) => !file || ["image/jpeg", "image/png"].includes(file.type),
       "Only JPG/PNG allowed"

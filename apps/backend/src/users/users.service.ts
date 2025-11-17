@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
@@ -7,6 +13,7 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UploadService } from 'src/upload/upload.service';
 import { Express } from 'express';
+import { matchHash } from 'src/utils/security';
 @Injectable()
 export class UserService {
   constructor(
@@ -47,22 +54,52 @@ export class UserService {
       const user = await this.findOneById(id);
       if (!user) throw new NotFoundException('user not found');
       if (profilePicture) {
-        const res = await this.uploadService.uploadFromBuffer(
-          profilePicture,
-          'profile_pictures',
-        );
-        user.profilePicture = res.secure_url as string;
+        if (profilePicture) {
+          const res = await this.uploadService.uploadFromBuffer(
+            profilePicture,
+            'profile_pictures',
+          );
+
+          if ('secure_url' in res) {
+            user.profilePicture = res.secure_url as string;
+          } else {
+            throw new BadRequestException(res.message);
+          }
+        }
       }
       if (coverPicture) {
         const res = await this.uploadService.uploadFromBuffer(
           coverPicture,
           'cover_pictures',
         );
-        user.coverPicture = res.secure_url as string;
+        if ('secure_url' in res) {
+          user.coverPicture = res.secure_url as string;
+        } else {
+          throw new BadRequestException(res.message);
+        }
       }
+
+      if (updateUserDto.name) user.name = updateUserDto.name;
+      if (!user.dateOfBirth && updateUserDto.dateOfBirth)
+        user.dateOfBirth = new Date(updateUserDto.dateOfBirth);
+      if (updateUserDto.bio) user.bio = updateUserDto.bio;
+
+      if (updateUserDto.currentPassword && updateUserDto.newPassword) {
+        const passwordMatched = await matchHash(
+          user.password,
+          updateUserDto.currentPassword,
+        );
+        if (!passwordMatched) throw new UnauthorizedException('Wrong Password');
+        const hashedPassword = await bcrypt.hash(updateUserDto.newPassword, 10);
+        user.password = hashedPassword;
+      }
+      if (!user.gender && updateUserDto.gender)
+        user.gender = updateUserDto.gender;
       return await this.userRepository.save(user);
-    } catch (error) {
-      throw new Error('sd');
+    } catch (error: unknown) {
+      throw new InternalServerErrorException(
+        error instanceof Error ? error.message : 'An unexpected error occurred',
+      );
     }
   }
 
