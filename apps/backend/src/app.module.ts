@@ -14,7 +14,9 @@ import { JwtService } from './auth/jwt/jwt.service';
 import { PassportModule } from '@nestjs/passport';
 import { GoogleStrategy } from './auth/stratagy/google.strategy';
 import { FacebookStrategy } from './auth/stratagy/facebook.strategy';
-
+import { UploadService } from './upload/upload.service';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './common/guards/auth/auth.guard';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -41,6 +43,11 @@ import { FacebookStrategy } from './auth/stratagy/facebook.strategy';
     JwtService,
     GoogleStrategy,
     FacebookStrategy,
+    UploadService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
   ],
 })
 export class AppModule {}

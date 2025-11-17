@@ -1,15 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { UploadService } from 'src/upload/upload.service';
+import { Express } from 'express';
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+    private readonly uploadService: UploadService,
   ) {}
   async create(createUserDto: CreateUserDto) {
     const { name, email, password, verified = false } = createUserDto;
@@ -34,8 +37,33 @@ export class UserService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    profilePicture?: Express.Multer.File,
+    coverPicture?: Express.Multer.File,
+  ) {
+    try {
+      const user = await this.findOneById(id);
+      if (!user) throw new NotFoundException('user not found');
+      if (profilePicture) {
+        const res = await this.uploadService.uploadFromBuffer(
+          profilePicture,
+          'profile_pictures',
+        );
+        user.profilePicture = res.secure_url as string;
+      }
+      if (coverPicture) {
+        const res = await this.uploadService.uploadFromBuffer(
+          coverPicture,
+          'cover_pictures',
+        );
+        user.coverPicture = res.secure_url as string;
+      }
+      return await this.userRepository.save(user);
+    } catch (error) {
+      throw new Error('sd');
+    }
   }
 
   remove(id: number) {
@@ -52,5 +80,9 @@ export class UserService {
       id,
     });
     return user;
+  }
+
+  async upload(file: Express.Multer.File) {
+    await this.uploadService.uploadFromBuffer(file);
   }
 }

@@ -37,6 +37,7 @@ export class InternalUser {
   email: string;
   name: string;
   profilePicture?: string;
+  coverPicture?: string;
   bio?: string;
   dateOfBirth?: Date;
   isVerified: boolean;
@@ -59,6 +60,7 @@ export class InternalUser {
     this.updatedAt = user.updatedAt;
     this.lastLogin = user.lastLogin;
     this.privacy = user.privacy;
+    this.coverPicture = user.coverPicture;
   }
 }
 

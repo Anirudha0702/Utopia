@@ -12,6 +12,9 @@ import { AuthService } from './auth.service';
 import { SigninDTO, SignupDTO } from './dto/auth.dto';
 import { type Request, type Response } from 'express';
 import { AuthGuard } from '@nestjs/passport';
+import { Public } from 'src/common/decorators/public/public.decorator';
+
+@Public()
 @Controller('auth') // Base route: /auth
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
