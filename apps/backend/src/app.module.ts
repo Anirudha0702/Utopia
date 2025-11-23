@@ -17,6 +17,8 @@ import { FacebookStrategy } from './auth/stratagy/facebook.strategy';
 import { UploadService } from './upload/upload.service';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth/auth.guard';
+import { PostController } from './post/post.controller';
+import { PostModule } from './post/post.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,8 +36,9 @@ import { AuthGuard } from './common/guards/auth/auth.guard';
     UsersModule,
     OtpModule,
     PassportModule.register({ session: false }),
+    PostModule,
   ],
-  controllers: [AppController, AuthController],
+  controllers: [AppController, AuthController, PostController],
   providers: [
     AppService,
     AuthService,

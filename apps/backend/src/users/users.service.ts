@@ -12,7 +12,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { UploadService } from 'src/upload/upload.service';
-import { Express } from 'express';
 import { matchHash } from 'src/utils/security';
 import { InternalUser } from 'src/auth/dto/auth.dto';
 @Injectable()
@@ -52,7 +51,6 @@ export class UserService {
     coverPicture?: Express.Multer.File,
   ) {
     try {
-      console.log('service');
       const user = await this.findOneById(id);
       if (!user) throw new NotFoundException('user not found');
       if (profilePicture) {

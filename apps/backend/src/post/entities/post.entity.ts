@@ -5,28 +5,37 @@ import {
   ManyToOne,
   CreateDateColumn,
   UpdateDateColumn,
+  OneToMany,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
+import { Like } from './like.entity';
+import { Comment } from './comment.entity';
 
+export enum MediaType {
+  IMAGE = 'image',
+  VIDEO = 'video',
+}
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'text' })
+  @Column({ type: 'text', nullable: true })
   content: string;
 
-  @Column({ nullable: true })
-  imageUrl: string; // optional image
+  @Column({ nullable: true, type: 'text', default: null })
+  mediaUrl: string;
+  @Column({ nullable: true, type: 'enum', enum: MediaType, default: null })
+  mediaType: MediaType;
 
   @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   user: User;
 
-  @Column({ default: 0 })
-  likes: number;
+  @OneToMany(() => Like, (like) => like.post)
+  likes: Like[];
 
-  @Column({ default: 0 })
-  commentsCount: number;
+  @OneToMany(() => Comment, (comment) => comment.post)
+  comments: Comment[];
 
   @CreateDateColumn()
   createdAt: Date;

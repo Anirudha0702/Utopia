@@ -11,6 +11,8 @@ import {
   ManyToOne,
 } from 'typeorm';
 import { Post } from '../../post/entities/post.entity';
+import { Like } from '../../post/entities/like.entity';
+import { Comment } from '../../post/entities/comment.entity';
 
 export enum Gender {
   MALE = 'Male',
@@ -85,7 +87,10 @@ export class User {
 
   @OneToMany(() => Post, (post) => post.user)
   posts: Post[];
-
+  @OneToMany(() => Like, (like) => like.user)
+  likes: Like[];
+  @OneToMany(() => Comment, (comment) => comment.user)
+  comments: Comment[];
   @Column({ default: false })
   isVerified: boolean;
 
