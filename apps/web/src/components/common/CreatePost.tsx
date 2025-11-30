@@ -4,7 +4,7 @@ import { Card } from "../ui/card";
 import { useRouter } from "@tanstack/react-router";
 import { useState } from "react";
 import { Dialog, DialogTitle, DialogContent, DialogHeader } from "../ui/dialog";
-import { Image } from "lucide-react";
+import { Image, Video } from "lucide-react";
 import CreatePostForm from "../forms/CreatePost";
 
 function CreatePost() {
@@ -36,6 +36,7 @@ function CreatePost() {
           What's on your mind, {auth.user?.name.slice(0, 7)}?
         </div>
         <Image color="green" size={32} />
+        <Video className="text-gray-500/50 cursor-not-allowed" size={32} />
       </div>
       <Dialog
         open={showCreatePostDialog}

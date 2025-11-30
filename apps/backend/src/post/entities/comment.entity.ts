@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   OneToMany,
+  Column,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Post } from './post.entity';
@@ -14,7 +15,8 @@ import { Like } from './like.entity';
 export class Comment {
   @PrimaryGeneratedColumn('uuid')
   id: string;
-
+  @Column({ type: 'text' })
+  content: string;
   @ManyToOne(() => User, (user) => user.comments, { onDelete: 'CASCADE' })
   user: User;
 
@@ -22,9 +24,9 @@ export class Comment {
   post: Post;
   @OneToMany(() => Like, (like) => like.comment)
   likes: Like[];
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 }

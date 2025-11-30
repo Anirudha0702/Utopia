@@ -82,4 +82,13 @@ export class PostController {
   remove(@Param('id') id: string) {
     return this.postService.remove(+id);
   }
+
+  @Get('feed/public')
+  async getPublicFeed() {
+    return await this.postService.getPublicFeed();
+  }
+  @Get('feed/:userId')
+  async getPersonalFeed(@Param('userId') id: string) {
+    return await this.postService.getPersonalFeed(id);
+  }
 }

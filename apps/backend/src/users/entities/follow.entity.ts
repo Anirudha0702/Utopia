@@ -27,6 +27,6 @@ export class Follow {
   @Column()
   following_id: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }

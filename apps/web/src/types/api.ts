@@ -130,8 +130,58 @@ export const PostSchema = z.object({
     id: z.uuid(),
   }),
 });
-
+const dateSchema = z.preprocess((arg) => {
+  if (typeof arg === "string" || arg instanceof Date) {
+    const date = new Date(arg);
+    console.log(arg, date);
+    return isNaN(date.getTime()) ? undefined : date; // invalid date → undefined
+  }
+  return undefined;
+}, z.date());
+export const FeedPostSchema = z.object({
+  id: z.uuid(),
+  content: z.string().nullable(),
+  videoUrls: z.string().array(),
+  imageUrls: z.string().array(),
+  privacy: z.literal(["private", "public", "follower_only"]),
+  createdAt: dateSchema,
+  updatedAt: z.coerce.date(),
+  user: z.object({
+    id: z.uuid(),
+    email: z.email(),
+    name: z.string(),
+    profilePicture: z.string().nullable(),
+  }),
+  likes: z
+    .object({
+      id: z.uuid(),
+      user: z.object({
+        id: z.uuid(),
+        email: z.email(),
+        name: z.string(),
+        profilePicture: z.string().nullable(),
+      }),
+    })
+    .array(),
+  comments: z
+    .object({
+      id: z.uuid(),
+      content: z.string(),
+      createdAt: z.coerce.date(),
+      user: z.object({
+        id: z.uuid(),
+        email: z.email(),
+        name: z.string(),
+        profilePicture: z.string().nullable(),
+      }),
+    })
+    .array(),
+});
 export type PostType = z.infer<typeof PostSchema>;
 
 export const createPostResponseSchema = apiResponseSchema(PostSchema);
 export type CreatePostResponse = z.infer<typeof createPostResponseSchema>;
+
+export const feedSchema = FeedPostSchema.array();
+export const feedResponseSchema = apiResponseSchema(feedSchema);
+export type UserFeedResponse = z.infer<typeof feedResponseSchema>;

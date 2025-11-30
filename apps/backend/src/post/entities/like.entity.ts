@@ -21,7 +21,7 @@ export class Like {
 
   @ManyToOne(() => Comment, (comment) => comment.likes)
   comment?: Comment;
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
   @UpdateDateColumn()

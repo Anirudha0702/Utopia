@@ -19,6 +19,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthGuard } from './common/guards/auth/auth.guard';
 import { PostController } from './post/post.controller';
 import { PostModule } from './post/post.module';
+import { RedisModule } from './redis/redis.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -37,6 +38,7 @@ import { PostModule } from './post/post.module';
     OtpModule,
     PassportModule.register({ session: false }),
     PostModule,
+    RedisModule,
   ],
   controllers: [AppController, AuthController, PostController],
   providers: [

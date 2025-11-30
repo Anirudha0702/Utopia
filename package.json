@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "dev": "docker compose up -d postgres && turbo run dev",
+    "dev": "docker compose up -d  && turbo run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types"

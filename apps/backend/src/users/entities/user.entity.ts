@@ -103,10 +103,10 @@ export class User {
   @Column({ default: true })
   notifications: boolean;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 
-  @UpdateDateColumn()
+  @UpdateDateColumn({ type: 'timestamptz' })
   updatedAt: Date;
 
   @Column({ type: 'timestamp', nullable: true })
@@ -132,6 +132,6 @@ export class OauthUser {
   @Column()
   providerId: string;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamptz' })
   createdAt: Date;
 }
