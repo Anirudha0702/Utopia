@@ -15,6 +15,11 @@ export enum MediaType {
   IMAGE = 'image',
   VIDEO = 'video',
 }
+export enum PostPrivacy {
+  PUBLIC = 'public',
+  PRIVATE = 'private',
+  FOLLOWER_ONLY = 'follower_only',
+}
 @Entity()
 export class Post {
   @PrimaryGeneratedColumn('uuid')
@@ -23,10 +28,13 @@ export class Post {
   @Column({ type: 'text', nullable: true })
   content: string;
 
-  @Column({ nullable: true, type: 'text', default: null })
-  mediaUrl: string;
-  @Column({ nullable: true, type: 'enum', enum: MediaType, default: null })
-  mediaType: MediaType;
+  @Column({ nullable: true, type: 'text', default: [], array: true })
+  imageUrls: string[];
+  @Column({ nullable: true, type: 'text', default: [], array: true })
+  videoUrls: string[];
+
+  @Column({ type: 'text', enum: PostPrivacy, default: 'public' })
+  privacy: PostPrivacy;
 
   @ManyToOne(() => User, (user) => user.posts, { onDelete: 'CASCADE' })
   user: User;

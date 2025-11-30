@@ -112,3 +112,39 @@ export const UpdateUserFormSchema = z.object({
 });
 
 export type UpdateUser = z.infer<typeof UpdateUserFormSchema>;
+
+export const CreatePostFormSchema = z
+  .object({
+    medias: z
+      .custom<File>((val) => val instanceof File, {
+        message: "Please upload a valid file",
+      })
+      .refine(
+        (file) => !file || file.size <= 1.5 * 1024 * 1024,
+        "Max 5MB allowed"
+      )
+      .refine(
+        (file) =>
+          !file || ["image/jpeg", "image/png", "video/mp4"].includes(file.type),
+        "Only JPG/PNG images are allowed"
+      )
+      .optional(),
+    txtContent: z
+      .string()
+      .max(160)
+      .optional()
+      .refine(
+        (val) => !val || val.trim().length === 0 || val.trim().length >= 20,
+        "Text must be at least 20 characters"
+      ),
+    privacy: z.literal(["private", "public", "follower_only"]).optional(),
+  })
+  .refine(
+    (data) =>
+      Boolean(data.medias || (data.txtContent && data.txtContent.trim())),
+    {
+      message: "Post is empty",
+      path: ["_global"],
+    }
+  );
+export type CreatePostForm = z.infer<typeof CreatePostFormSchema>;

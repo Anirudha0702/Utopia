@@ -25,8 +25,8 @@ export class PostController {
   @UseInterceptors(
     FileFieldsInterceptor(
       [
-        { name: 'image', maxCount: 1 },
-        { name: 'video', maxCount: 1 },
+        { name: 'images', maxCount: 1 },
+        { name: 'videos', maxCount: 1 },
       ],
       {
         limits: {
@@ -38,14 +38,14 @@ export class PostController {
   async create(
     @UploadedFiles()
     files: {
-      image?: Express.Multer.File[];
-      video?: Express.Multer.File[];
+      images?: Express.Multer.File[];
+      videos?: Express.Multer.File[];
     },
     @Body(new ValidationPipe({ transform: true, whitelist: true }))
     createPostDto: CreatePostDto,
   ) {
-    const hasImage = files.image && files.image.length > 0;
-    const hasVideo = files.video && files.video.length > 0;
+    const hasImage = files.images && files.images.length > 0;
+    const hasVideo = files.videos && files.videos.length > 0;
 
     if (hasImage && hasVideo) {
       throw new BadRequestException(
@@ -54,7 +54,7 @@ export class PostController {
     }
     if (!hasImage && !hasVideo && !createPostDto.txtContent)
       throw new BadRequestException('Post must contain something.');
-    const media = files.image?.[0] ?? files.video?.[0];
+    const media = files.images?.[0] ?? files.videos?.[0];
     const mediaType = hasImage
       ? MediaType.IMAGE
       : hasVideo

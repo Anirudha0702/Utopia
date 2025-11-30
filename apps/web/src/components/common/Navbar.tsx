@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button"; // shadcn button
 import {
   LogOut,
-  Loader2,
   MessageCircleHeart,
   BellRing,
   UserPen,
@@ -55,7 +54,7 @@ function Navbar() {
       router.navigate({ to: "/profile" });
     }
   };
-
+  const navigateToHome = () => router.navigate({ to: "/" });
   // Handle login action
   async function onSearch() {}
   return (
@@ -91,7 +90,7 @@ function Navbar() {
         </div>
       )} */}
       <div className="flex items-center flex-1">
-        <span className=" font-semibold mr-4">
+        <span className=" font-semibold mr-4" onClick={navigateToHome}>
           <img src="/images/logo.webp" alt="" className="h-10 aspect-square" />
         </span>
         <Searchbar onSearch={onSearch} />

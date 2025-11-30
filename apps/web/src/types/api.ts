@@ -117,3 +117,21 @@ export const updateUserDataSchema = z.object({
 export const updateResponseSchema = apiResponseSchema(updateUserDataSchema);
 
 export type UpdateUserResponse = z.infer<typeof updateResponseSchema>;
+
+export const PostSchema = z.object({
+  id: z.uuid(),
+  content: z.string().nullable(),
+  videoUrls: z.string().array(),
+  imageUrls: z.string().array(),
+  privacy: z.literal(["private", "public", "follower_only"]),
+  createdAt: z.coerce.date(),
+  updatedAt: z.coerce.date(),
+  user: z.object({
+    id: z.uuid(),
+  }),
+});
+
+export type PostType = z.infer<typeof PostSchema>;
+
+export const createPostResponseSchema = apiResponseSchema(PostSchema);
+export type CreatePostResponse = z.infer<typeof createPostResponseSchema>;

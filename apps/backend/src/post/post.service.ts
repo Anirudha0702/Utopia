@@ -35,12 +35,24 @@ export class PostService {
           throw new BadRequestException(uploaded.message);
         }
       }
+      let imageUrls: string[] = [];
+      let videoUrls: string[] = [];
+
+      if (mediaUrl) {
+        if (mediaType === MediaType.VIDEO) {
+          videoUrls = [mediaUrl];
+        } else {
+          imageUrls = [mediaUrl];
+        }
+      }
       const post = this.postRepository.create({
         content: createPostDto.txtContent,
-        mediaType: mediaType,
-        mediaUrl,
+        imageUrls,
+        videoUrls,
+        privacy: createPostDto.privacy,
         user: { id: createPostDto.userId },
       });
+
       const entry = await this.postRepository.save(post);
       return entry;
     } catch (error: unknown) {
@@ -48,7 +60,6 @@ export class PostService {
         error instanceof Error ? error.message : 'An unexpected error occurred',
       );
     }
-    return 'This action adds a new post';
   }
 
   async findAll() {
