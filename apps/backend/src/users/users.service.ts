@@ -121,4 +121,10 @@ export class UserService {
     });
     return user;
   }
+  async getFollowersOfUser(id: string) {
+    return await this.userRepository.findOne({
+      where: { id },
+      relations: { following: true },
+    });
+  }
 }

@@ -2,6 +2,7 @@ import { email, z } from "zod";
 
 export interface ApiConfig<TResponse, TPayload = undefined> {
   endpoint: string;
+  key?: string;
   method?: "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
   headers?: Record<string, string>;
   queryParams?: Record<string, string | number | boolean>;
@@ -185,3 +186,35 @@ export type CreatePostResponse = z.infer<typeof createPostResponseSchema>;
 export const feedSchema = FeedPostSchema.array();
 export const feedResponseSchema = apiResponseSchema(feedSchema);
 export type UserFeedResponse = z.infer<typeof feedResponseSchema>;
+
+export const LikeDislikeResponseSchema = apiResponseSchema(
+  z.union([
+    z.boolean(),
+    z.object({
+      id: z.string().uuid(),
+      user: z.object({
+        id: z.string().uuid(),
+        email: z.string().email(),
+        name: z.string(),
+        profilePicture: z.string().nullable(),
+      }),
+    }),
+  ])
+);
+export type LikeDislikePostResponse = z.infer<typeof LikeDislikeResponseSchema>;
+
+export const createCommentResponseSchema = apiResponseSchema(
+  z.object({
+    id: z.uuid(),
+    content: z.string(),
+    createdAt: z.coerce.date(),
+    user: z.object({
+      id: z.uuid(),
+      email: z.email(),
+      name: z.string(),
+      profilePicture: z.string().nullable(),
+    }),
+  })
+);
+
+export type CreateCommentResponse = z.infer<typeof createCommentResponseSchema>;

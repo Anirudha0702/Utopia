@@ -148,3 +148,19 @@ export const CreatePostFormSchema = z
     }
   );
 export type CreatePostForm = z.infer<typeof CreatePostFormSchema>;
+
+export const LikeDislikePayloadSchema = z.object({
+  postId: z.uuid(),
+  userId: z.uuid(),
+  liked: z.boolean(),
+});
+
+export type LikeDislikePayload = z.infer<typeof LikeDislikePayloadSchema>;
+
+export const CreateCommentPayloadSchema = z.object({
+  postId: z.uuid(),
+  userId: z.uuid(),
+  comment: z.string().min(5),
+});
+
+export type CreateCommentPayload = z.infer<typeof CreateCommentPayloadSchema>;

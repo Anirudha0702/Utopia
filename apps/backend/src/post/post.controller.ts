@@ -12,8 +12,12 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { PostService } from './post.service';
-import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
+import {
+  CreateCommentDto,
+  CreatePostDto,
+  LikeDislikePostDto,
+} from './dto/create.dto';
+import { UpdatePostDto } from './dto/update.dto';
 import { FileFieldsInterceptor } from '@nestjs/platform-express/multer';
 import { MediaType } from './entities/post.entity';
 
@@ -90,5 +94,20 @@ export class PostController {
   @Get('feed/:userId')
   async getPersonalFeed(@Param('userId') id: string) {
     return await this.postService.getPersonalFeed(id);
+  }
+  @Post('like')
+  async likePost(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    likeInfo: LikeDislikePostDto,
+  ) {
+    return await this.postService.likeDislikePost(likeInfo);
+  }
+
+  @Post('comment')
+  async Comment(
+    @Body(new ValidationPipe({ transform: true, whitelist: true }))
+    commentInfo: CreateCommentDto,
+  ) {
+    return await this.postService.createComment(commentInfo);
   }
 }

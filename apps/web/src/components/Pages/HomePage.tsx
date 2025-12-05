@@ -9,10 +9,7 @@ function HomePage() {
       <div className="max-w-3xl mx-auto">
         {auth.user && <CreatePost />}
         <div className="mt-2">
-          <Feed
-            userId={auth.user?.id}
-            profilePic={auth.user?.profilePicture ?? null}
-          />
+          <Feed userId={auth.user?.id} />
         </div>
       </div>
     </div>

@@ -131,12 +131,14 @@ export const useApi = <TResponse, TPayload = undefined>(
   config: ApiConfig<TResponse, TPayload>,
   options?: Omit<UseQueryOptions<TResponse, ApiError>, "queryKey" | "queryFn">
 ) => {
-  const queryKey = [
-    config.endpoint,
-    config.method,
-    config.queryParams ? JSON.stringify(config.queryParams) : null,
-    config.payload ? JSON.stringify(config.payload) : null,
-  ];
+  const queryKey = config.key
+    ? [config.key]
+    : [
+        config.endpoint,
+        config.method,
+        config.queryParams ? JSON.stringify(config.queryParams) : null,
+        config.payload ? JSON.stringify(config.payload) : null,
+      ];
 
   return useQuery<TResponse, ApiError>({
     queryKey,
